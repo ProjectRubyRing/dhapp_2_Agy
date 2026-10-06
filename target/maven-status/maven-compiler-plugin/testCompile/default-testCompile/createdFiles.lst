@@ -1,0 +1,9 @@
+com\example\dhapp\service\SecureApiTlsServiceTest.class
+com\example\dhapp\controller\RedirectControllerTest$1.class
+com\example\dhapp\service\RedirectCheckServiceTest.class
+com\example\dhapp\service\DateConfigServiceTest.class
+com\example\dhapp\controller\RedirectControllerTest.class
+com\example\dhapp\logging\LogFileNamePropertyDefinerTest.class
+com\example\dhapp\service\ExternalGetApiClientTest.class
+com\example\dhapp\service\NewApiWiringTest.class
+com\example\dhapp\service\SqsSendServiceTest.class

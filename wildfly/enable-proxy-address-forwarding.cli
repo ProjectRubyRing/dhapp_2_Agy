@@ -1,0 +1,28 @@
+# =====================================================================
+# WildFly / JBoss EAP (Undertow) の http-listener で proxy-address-forwarding を有効化する。
+#
+# 【背景】
+# ALB (HTTPS:443) から JBoss EAP (HTTP:8080/8180) 間の通信において、
+# アプリケーションが相対リダイレクト（sendRedirect）を発行した場合、
+# Undertow が着信の平文 HTTP スキームに基づき絶対 URL を構築するため、
+# レスポンスヘッダに Location: http://... が設定されてしまう。
+#
+# proxy-address-forwarding=true を設定することで、Undertow は ALB が付与する
+# X-Forwarded-Proto / X-Forwarded-For / X-Forwarded-Port / X-Forwarded-Host を解釈し、
+# コンテナレベルで request.getScheme() を "https"、ポートを 443 として扱い、
+# Location: https://... のリダイレクトヘッダを正しく生成する。
+#
+# 実行（起動中のサーバへ適用。適用後に reload される）:
+#   $JBOSS_HOME/bin/jboss-cli.sh --connect --file=wildfly/enable-proxy-address-forwarding.cli
+#
+# 実行（サーバ未起動の standalone.xml を直接書き換える場合）:
+#   $JBOSS_HOME/bin/jboss-cli.sh --file=wildfly/enable-proxy-address-forwarding.cli
+# =====================================================================
+
+connect
+
+# default-server の default http-listener に proxy-address-forwarding=true を設定
+/subsystem=undertow/server=default-server/http-listener=default:write-attribute(name=proxy-address-forwarding, value=true)
+
+# 設定反映のためリロード
+reload
