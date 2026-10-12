@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.core.ContextBase;
 
 /**
  * logback-spring.xml のログファイル名に使う PropertyDefiner（IP プレフィックス・ランダム文字列）の確認。
@@ -16,12 +16,15 @@ class LogFileNamePropertyDefinerTest {
     @Test
     void hostIpIsIpv4WithHyphenSeparators() {
         HostIpPropertyDefiner definer = new HostIpPropertyDefiner();
-        definer.setContext(new LoggerContext());
+        definer.setContext(new ContextBase());
 
         String value = definer.getPropertyValue();
 
         assertTrue(value.matches("\\d{1,3}-\\d{1,3}-\\d{1,3}-\\d{1,3}"), value);
         assertEquals("10-0-1-23", HostIpPropertyDefiner.toFileNameToken("10.0.1.23"));
+        String lookupIp = new HostIpLookup().lookup("");
+        assertTrue(lookupIp.matches("\\d{1,3}-\\d{1,3}-\\d{1,3}-\\d{1,3}"), lookupIp);
+        assertEquals(value, lookupIp);
     }
 
     @Test

@@ -11,6 +11,7 @@ C:\Users\taka_\Agy\dhapp_2_Agy\src\main\java\com\example\dhapp\controller\DemoCo
 C:\Users\taka_\Agy\dhapp_2_Agy\src\main\java\com\example\dhapp\controller\ExternalApiController.java
 C:\Users\taka_\Agy\dhapp_2_Agy\src\main\java\com\example\dhapp\controller\ExternalGetApiController.java
 C:\Users\taka_\Agy\dhapp_2_Agy\src\main\java\com\example\dhapp\controller\FileUploadController.java
+C:\Users\taka_\Agy\dhapp_2_Agy\src\main\java\com\example\dhapp\controller\HealthCheckController.java
 C:\Users\taka_\Agy\dhapp_2_Agy\src\main\java\com\example\dhapp\controller\LogTestController.java
 C:\Users\taka_\Agy\dhapp_2_Agy\src\main\java\com\example\dhapp\controller\RedirectController.java
 C:\Users\taka_\Agy\dhapp_2_Agy\src\main\java\com\example\dhapp\controller\SecureApiController.java
@@ -52,7 +53,10 @@ C:\Users\taka_\Agy\dhapp_2_Agy\src\main\java\com\example\dhapp\dto\UploadLimitsI
 C:\Users\taka_\Agy\dhapp_2_Agy\src\main\java\com\example\dhapp\exception\DemoException.java
 C:\Users\taka_\Agy\dhapp_2_Agy\src\main\java\com\example\dhapp\exception\FileUploadException.java
 C:\Users\taka_\Agy\dhapp_2_Agy\src\main\java\com\example\dhapp\exception\GlobalExceptionHandler.java
+C:\Users\taka_\Agy\dhapp_2_Agy\src\main\java\com\example\dhapp\logging\HostAddressResolver.java
+C:\Users\taka_\Agy\dhapp_2_Agy\src\main\java\com\example\dhapp\logging\HostIpLookup.java
 C:\Users\taka_\Agy\dhapp_2_Agy\src\main\java\com\example\dhapp\logging\HostIpPropertyDefiner.java
+C:\Users\taka_\Agy\dhapp_2_Agy\src\main\java\com\example\dhapp\logging\RandomStringLookup.java
 C:\Users\taka_\Agy\dhapp_2_Agy\src\main\java\com\example\dhapp\logging\RandomStringPropertyDefiner.java
 C:\Users\taka_\Agy\dhapp_2_Agy\src\main\java\com\example\dhapp\service\ConsoleWriter.java
 C:\Users\taka_\Agy\dhapp_2_Agy\src\main\java\com\example\dhapp\service\DateConfigService.java

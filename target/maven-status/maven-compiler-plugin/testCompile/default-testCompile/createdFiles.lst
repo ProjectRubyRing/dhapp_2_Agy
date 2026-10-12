@@ -1,6 +1,8 @@
 com\example\dhapp\service\SecureApiTlsServiceTest.class
 com\example\dhapp\controller\RedirectControllerTest$1.class
 com\example\dhapp\service\RedirectCheckServiceTest.class
+com\example\dhapp\controller\HealthCheckControllerTest.class
+com\example\dhapp\logging\Log4j2TraceLogTest.class
 com\example\dhapp\service\DateConfigServiceTest.class
 com\example\dhapp\controller\RedirectControllerTest.class
 com\example\dhapp\logging\LogFileNamePropertyDefinerTest.class

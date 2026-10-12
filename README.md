@@ -496,12 +496,21 @@ API では**保存先の絶対パスと保存したファイルのサイズ**が
 コンテナのロケールが `POSIX` / `C`（`stdout.encoding` が ASCII）でも日本語が化けない。
 同じレポートはレスポンスの `report` フィールドと `?format=text` からも取得できる。
 
-> WildFly(JBoss EAP) デプロイ時は `jboss-deployment-structure.xml` で logging サブシステムを除外して
-> いるため、ログ出力は war 内の Logback（Spring Boot 標準）が担う。
+### ヘルスチェック API (stale file handle 調査用)
+
+- `GET /api/healthcheck`（または `GET /healthcheck`）
+- 処理は基本実行せず、そのまま HTTP 200 ステータスコード（ボディ: `OK`）を返却する。
+- 呼び出し時に `tracelog` へログを記録するため、EFS/NFS 環境等における時間単位ローテーション時の stale file handle エラー検証等に利用可能。
+
+```bash
+curl -i http://host:8080/iwinmichl/api/healthcheck
+```
+
+> WildFly(JBoss EAP) デプロイ時は `jboss-deployment-structure.xml` で logging サブシステムを除外しているため、ログ出力は war 内の Log4j2 2.25.3 (`log4j-api-2.25.3.jar`, `log4j-core-2.25.3.jar`, `log4j-slf4j2-impl-2.25.3.jar`) が担う。
 
 `${EFS_LOGS_PATH}` に出力するログファイルは、ファイル名の先頭に **ホストの IPv4 アドレス（区切り文字は
 ハイフン）と `_`** がプレフィックスとして付く（以下の表では `<IP>` と表記）。例えば IP アドレスが
-`10.0.1.23` のホストでは `10-0-1-23_application.log` になる。IP アドレスは起動時に 1 回だけ取得する
+`10.0.1.23` のホストでは `10-0-1-23_application.log` や `10-0-1-23_tracelog` になる。IP アドレスは起動時に 1 回だけ取得する
 （ホスト名から引いたアドレス → 稼働中 NIC の IPv4 の順。取れなければ `127-0-0-1`）。
 
 | ファイル | パス | 内容 |

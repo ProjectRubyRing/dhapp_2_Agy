@@ -24,59 +24,15 @@ import ch.qos.logback.core.PropertyDefinerBase;
  */
 public class HostIpPropertyDefiner extends PropertyDefinerBase {
 
-    static final String FALLBACK_ADDRESS = "127.0.0.1";
+    static final String FALLBACK_ADDRESS = HostAddressResolver.FALLBACK_ADDRESS;
 
     @Override
     public String getPropertyValue() {
-        return toFileNameToken(resolveAddress());
+        return HostAddressResolver.resolveHostIpToken();
     }
 
     /** IPv4 アドレスの区切り文字（.）をハイフンに置き換える。 */
     static String toFileNameToken(String address) {
-        return address.replace('.', '-');
-    }
-
-    private String resolveAddress() {
-        try {
-            InetAddress local = InetAddress.getLocalHost();
-            if (local instanceof Inet4Address && !local.isLoopbackAddress()) {
-                return local.getHostAddress();
-            }
-        } catch (Exception e) {
-            addWarn("InetAddress.getLocalHost() failed; falling back to network interfaces", e);
-        }
-
-        try {
-            String siteLocal = null;
-            String other = null;
-            for (NetworkInterface nic : Collections.list(NetworkInterface.getNetworkInterfaces())) {
-                if (!nic.isUp() || nic.isLoopback() || nic.isVirtual()) {
-                    continue;
-                }
-                for (InetAddress address : Collections.list(nic.getInetAddresses())) {
-                    if (!(address instanceof Inet4Address) || address.isLoopbackAddress()) {
-                        continue;
-                    }
-                    if (address.isSiteLocalAddress()) {
-                        if (siteLocal == null) {
-                            siteLocal = address.getHostAddress();
-                        }
-                    } else if (other == null) {
-                        other = address.getHostAddress();
-                    }
-                }
-            }
-            if (siteLocal != null) {
-                return siteLocal;
-            }
-            if (other != null) {
-                return other;
-            }
-        } catch (Exception e) {
-            addWarn("Failed to enumerate network interfaces", e);
-        }
-
-        addWarn("No non-loopback IPv4 address found; using " + FALLBACK_ADDRESS);
-        return FALLBACK_ADDRESS;
+        return HostAddressResolver.toFileNameToken(address);
     }
 }

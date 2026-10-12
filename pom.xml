@@ -25,6 +25,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- AWS SDK for Java v2（SQS 送信 API で使用） -->
         <aws-sdk.version>2.54.18</aws-sdk.version>
+        <!-- Log4j 2（stale file handle 調査用） -->
+        <log4j2.version>2.25.3</log4j2.version>
     </properties>
 
     <dependencyManagement>
@@ -44,6 +46,43 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!--
+            Log4j 2 (2.25.3)
+            stale file handle エラー調査のため、ロガーとして Log4j2 を利用。
+            war パッケージング時に WEB-INF/lib 配下に
+            log4j-api-2.25.3.jar, log4j-core-2.25.3.jar, log4j-slf4j2-impl-2.25.3.jar
+            が含まれる。
+        -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>${log4j2.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>${log4j2.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j2-impl</artifactId>
+            <version>${log4j2.version}</version>
+        </dependency>
+
+        <!-- 既存 Logback PropertyDefiner 互換用 (war には含めない) -->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>1.5.11</version>
+            <scope>provided</scope>
         </dependency>
 
         <!--

@@ -1,33 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Spring Boot(Spring MVC) を WildFly に WAR デプロイする際の調整。
+    Spring Boot (Spring MVC) を JBoss EAP 8.1 / WildFly に WAR デプロイする際の調整。
 
-    - jaxrs (RESTEasy) サブシステムを除外:
-        Spring MVC と RESTEasy がリクエストマッピングで競合するのを防ぐ。
-    - weld (CDI) サブシステムを除外:
-        Spring の DI を使うため CDI スキャンは不要（起動高速化・競合回避）。
-    - jpa サブシステムを除外:
-        本アプリは JPA を使わず JdbcTemplate のみ。不要なエンティティスキャンを避ける。
-    - logging サブシステムを除外:
-        WildFly の SLF4J バインディング注入を止め、war 内の Logback を使う。
-        これをしないと SLF4J バインディングが競合し、起動時に
-        "LoggerFactory is not a Logback LoggerContext but Logback is on the classpath"
-        で失敗する。
+    1. サブシステムの除外 (<exclude-subsystems>):
+       - jaxrs (RESTEasy) サブシステムを除外:
+           Spring MVC と RESTEasy がリクエストマッピングで競合するのを防ぐ。
+       - weld (CDI) サブシステムを除外:
+           Spring の DI を使うため CDI スキャンは不要（起動高速化・Bean競合回避）。
+       - jpa サブシステムを除外:
+           本アプリは JPA を使わず JdbcTemplate のみ。不要なエンティティスキャンを避ける。
+       - logging サブシステムを除外:
+           JBoss のログマネージャ注入および SLF4J バインディング注入を止め、
+           WAR 内の Log4j2 (log4j-slf4j2-impl / log4j-core 2.25.3) を利用する。
+       - jsf (Jakarta Faces) サブシステムを除外:
+           weld (CDI) 除外環境下で Jakarta Faces 4.0 (ConfigureListener) が
+           CDI BeanManager 不在 (IllegalStateException: CDI is not available) で
+           起動失敗するのを防止する。
+       - batch-jberet サブシステムを除外:
+           weld (CDI) 除外環境下で batch.artifact.factory が beanmanager 不在となり
+           サービス依存性欠落エラーになるのを防止する。
 
-    - ログ系モジュールを明示除外 (<exclusions>):
-        logging サブシステムを除外しても、EAP のバージョンによっては各デプロイに
-        暗黙で追加されるログ系モジュール依存（org.slf4j / org.jboss.logging など）が
-        残る。その場合コンテナ側の古い slf4j-api(1.7 系) やバインディングが war 内の
-        slf4j-api 2.x + Logback 1.5.x より優先され、Logback の初期化が
-        NoSuchMethodError / LinkageError で失敗する。これが Spring Boot 側の
-            "Logging system failed to initialize using configuration from 'null'"
-            "IllegalStateException: could not initialize Logback logging from
-             classpath:logback-spring.xml"
-        の正体。war 内蔵の slf4j+Logback だけを使わせるため、以下のモジュールを
-        デプロイのクラスローダから見えないように除外する。
+    2. ログ系モジュールの明示除外 (<exclusions>):
+       logging サブシステムを除外しても、JBoss EAP 8.1 / WildFly ではコンテナ側の
+       暗黙モジュール依存（org.slf4j, org.jboss.logging, org.apache.logging.log4j.api,
+       org.jboss.logmanager.log4j2 等）がデプロイのクラスローダに注入される場合がある。
+       コンテナ側の古い/異なるバージョンの API や LogManager 転送アダプタとの競合を防ぎ、
+       WAR 内蔵の log4j-api-2.25.3.jar / log4j-core-2.25.3.jar / log4j-slf4j2-impl-2.25.3.jar
+       を独立して確実に機能させるため、以下のモジュールを除外する。
 
-    XA データソース／JTA は WildFly コアの datasources / transactions サブシステムが
-    提供するものであり、ここでは除外しない。
+    ※ XA データソース／JTA は WildFly コアの datasources / transactions サブシステムが
+       提供するものであり、ここでは除外しない。
 -->
 <jboss-deployment-structure xmlns="urn:jboss:deployment-structure:1.3">
     <deployment>
@@ -36,11 +38,13 @@
             <subsystem name="weld"/>
             <subsystem name="jpa"/>
             <subsystem name="logging"/>
+            <subsystem name="jsf"/>
+            <subsystem name="batch-jberet"/>
         </exclude-subsystems>
 
         <!--
             コンテナが暗黙追加するログ系モジュールを除外し、war 内の
-            slf4j-api 2.x + Logback 1.5.x を唯一のバインディングにする。
+            log4j-api / log4j-core / log4j-slf4j2-impl 2.25.3 を利用する。
         -->
         <exclusions>
             <module name="org.slf4j"/>
@@ -48,9 +52,11 @@
             <module name="org.slf4j.ext"/>
             <module name="org.jboss.logging"/>
             <module name="org.jboss.logmanager"/>
+            <module name="org.jboss.logmanager.log4j2"/>
             <module name="org.jboss.logging.jul-to-slf4j-stub"/>
             <module name="org.apache.commons.logging"/>
             <module name="org.apache.log4j"/>
+            <module name="org.apache.logging.log4j.api"/>
         </exclusions>
     </deployment>
 </jboss-deployment-structure>

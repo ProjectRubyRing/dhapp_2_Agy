@@ -40,6 +40,16 @@ public class SchemaInitializer implements ApplicationRunner {
             + "  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"
             + ") ENGINE=InnoDB";
 
+    private static final String FALLBACK_CREATE_TABLE_SQL =
+            "CREATE TABLE IF NOT EXISTS demo_transaction_log ("
+            + "  id BIGINT AUTO_INCREMENT PRIMARY KEY,"
+            + "  request_id VARCHAR(64) NOT NULL,"
+            + "  session_id VARCHAR(128) NOT NULL,"
+            + "  user_id VARCHAR(128) NOT NULL,"
+            + "  message VARCHAR(1024),"
+            + "  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"
+            + ")";
+
     private final JdbcTemplate dhcomapJdbcTemplate;
     private final JdbcTemplate dhinfapJdbcTemplate;
 
@@ -53,10 +63,19 @@ public class SchemaInitializer implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) {
         log.info("Ensuring 'demo_transaction_log' exists on DHCOMAP and DHINFAP (DDL runs outside any 2PC tx)...");
-        // XA は InnoDB が前提（MySQL の XA サポートは InnoDB のみ）
-        dhcomapJdbcTemplate.execute(CREATE_TABLE_SQL);
-        log.info("DHCOMAP schema ready.");
-        dhinfapJdbcTemplate.execute(CREATE_TABLE_SQL);
-        log.info("DHINFAP schema ready.");
+        createTableIfNotExists(dhcomapJdbcTemplate, "DHCOMAP");
+        createTableIfNotExists(dhinfapJdbcTemplate, "DHINFAP");
+    }
+
+    private void createTableIfNotExists(JdbcTemplate jdbcTemplate, String dsName) {
+        try {
+            // XA は InnoDB が前提（MySQL の XA サポートは InnoDB のみ）
+            jdbcTemplate.execute(CREATE_TABLE_SQL);
+            log.info("{} schema ready.", dsName);
+        } catch (Exception e) {
+            log.warn("Failed to create table with ENGINE=InnoDB on {}, retrying with standard DDL: {}", dsName, e.getMessage());
+            jdbcTemplate.execute(FALLBACK_CREATE_TABLE_SQL);
+            log.info("{} schema ready (fallback).", dsName);
+        }
     }
 }

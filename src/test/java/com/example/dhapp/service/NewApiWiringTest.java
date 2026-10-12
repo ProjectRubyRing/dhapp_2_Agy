@@ -15,6 +15,7 @@ import org.springframework.core.io.ClassPathResource;
 import com.example.dhapp.config.RedirectConfig;
 import com.example.dhapp.controller.DateConfigController;
 import com.example.dhapp.controller.ExternalGetApiController;
+import com.example.dhapp.controller.HealthCheckController;
 import com.example.dhapp.controller.RedirectController;
 import com.example.dhapp.controller.SecureApiController;
 import com.example.dhapp.controller.SqsController;
@@ -41,7 +42,7 @@ class NewApiWiringTest {
                     RedirectCheckService.class, RedirectConfig.class,
                     DateConfigController.class, SecureApiController.class,
                     ExternalGetApiController.class, SqsController.class,
-                    RedirectController.class);
+                    RedirectController.class, HealthCheckController.class);
             context.refresh();
 
             DateConfigService dateConfigService = context.getBean(DateConfigService.class);
@@ -74,6 +75,7 @@ class NewApiWiringTest {
             assertNotNull(context.getBean(SqsController.class));
             assertNotNull(context.getBean(RedirectController.class));
             assertNotNull(context.getBean(RedirectConfig.class));
+            assertNotNull(context.getBean(HealthCheckController.class));
         }
     }
 

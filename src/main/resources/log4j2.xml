@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Log4j2 構成ファイル。
+    stale file handle エラー調査のため、Log4j2 (2.25.3) を利用し、
+    tracelog を時間単位でローテーションする設定を含む。
+
+    出力先は環境変数 EFS_LOGS_PATH で指定したディレクトリ配下に集約する。
+    （未設定時は /mnt/logs/front/logs/inter-api）
+
+    ファイル名プレフィックスはホストの IPv4 アドレス（ハイフン区切り）。例: 10-0-1-23_tracelog
+    ローテーション周期は 1 時間ごと（TimeBasedTriggeringPolicy interval="1" modulate="true"）。
+    ローテーション後のファイル名は末尾に ".%d{yyyy-MM-dd-HH}" が付与される。
+-->
+<Configuration status="WARN" packages="com.example.dhapp.logging">
+
+    <Properties>
+        <!-- 出力ルートディレクトリ（未設定時は /mnt/logs/front/logs/inter-api） -->
+        <Property name="LOG_DIR">${sys:EFS_LOGS_PATH:-${env:EFS_LOGS_PATH:-/mnt/logs/front/logs/inter-api}}</Property>
+
+        <!-- ファイル名プレフィックス用のホスト IPv4 アドレス（例: 10-0-1-23） -->
+        <Property name="RESOLVED_HOST_IP">${sys:HOST_IP:-${env:HOST_IP:-${hostIp:}}}</Property>
+
+        <!-- ランダム文字列識別子 -->
+        <Property name="RESOLVED_ERR_FILE_ID">${sys:ERR_FILE_ID:-${randomString:}}</Property>
+        <Property name="RESOLVED_ASYNCDRIVER_ERR_FILE_ID">${sys:ASYNCDRIVER_ERR_FILE_ID:-${randomString:digits}}</Property>
+
+        <!-- アプリログ用パターン -->
+        <Property name="APP_PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{48} - %msg%n%throwable</Property>
+    </Properties>
+
+    <Appenders>
+        <!-- コンソール -->
+        <Console name="CONSOLE" target="SYSTEM_OUT">
+            <PatternLayout pattern="${APP_PATTERN}" charset="UTF-8"/>
+        </Console>
+
+        <!-- アプリログ: LOG_DIR/<IP>_application.log -->
+        <RollingFile name="APP_FILE"
+                     fileName="${LOG_DIR}/${RESOLVED_HOST_IP}_application.log"
+                     filePattern="${LOG_DIR}/${RESOLVED_HOST_IP}_application.log.%d{yyyy-MM-dd-HH}">
+            <PatternLayout pattern="${APP_PATTERN}" charset="UTF-8"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+            <DefaultRolloverStrategy max="336"/>
+        </RollingFile>
+
+        <!-- エラーログ: LOG_DIR/<IP>_error.log (ERROR のみ) -->
+        <RollingFile name="ERROR_FILE"
+                     fileName="${LOG_DIR}/${RESOLVED_HOST_IP}_error.log"
+                     filePattern="${LOG_DIR}/${RESOLVED_HOST_IP}_error.log.%d{yyyy-MM-dd-HH}">
+            <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout pattern="${APP_PATTERN}" charset="UTF-8"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+            <DefaultRolloverStrategy max="336"/>
+        </RollingFile>
+
+        <!--
+            ===== tracelog: LOG_DIR/<IP>_tracelog =====
+            stale file handle エラー調査用。
+            1 時間ごとにローテーション（TimeBasedTriggeringPolicy interval="1" modulate="true"）。
+            ローテーション後: <IP>_tracelog.%d{yyyy-MM-dd-HH}
+        -->
+        <RollingFile name="TRACE_FILE"
+                     fileName="${LOG_DIR}/${RESOLVED_HOST_IP}_tracelog"
+                     filePattern="${LOG_DIR}/${RESOLVED_HOST_IP}_tracelog.%d{yyyy-MM-dd-HH}">
+            <PatternLayout pattern="${APP_PATTERN}" charset="UTF-8"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+            <DefaultRolloverStrategy max="336"/>
+        </RollingFile>
+
+        <!-- 各種処理内容ログ（同一内容出力） -->
+        <RollingFile name="KEAX_FILE"
+                     fileName="${LOG_DIR}/${RESOLVED_HOST_IP}_keax0003.log"
+                     filePattern="${LOG_DIR}/${RESOLVED_HOST_IP}_keax0003.log.%d{yyyy-MM-dd-HH}">
+            <PatternLayout pattern="${APP_PATTERN}" charset="UTF-8"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+            <DefaultRolloverStrategy max="336"/>
+        </RollingFile>
+
+        <RollingFile name="KEAX0010_FILE"
+                     fileName="${LOG_DIR}/${RESOLVED_HOST_IP}_keax0010.log"
+                     filePattern="${LOG_DIR}/${RESOLVED_HOST_IP}_keax0010.log.%d{yyyy-MM-dd-HH}">
+            <PatternLayout pattern="${APP_PATTERN}" charset="UTF-8"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+            <DefaultRolloverStrategy max="336"/>
+        </RollingFile>
+
+        <RollingFile name="ERR_FILE"
+                     fileName="${LOG_DIR}/${RESOLVED_HOST_IP}_${RESOLVED_ERR_FILE_ID}.err"
+                     filePattern="${LOG_DIR}/${RESOLVED_HOST_IP}_${RESOLVED_ERR_FILE_ID}.err.%d{yyyy-MM-dd-HH}">
+            <PatternLayout pattern="${APP_PATTERN}" charset="UTF-8"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+            <DefaultRolloverStrategy max="336"/>
+        </RollingFile>
+
+        <RollingFile name="ACCESS_FILE"
+                     fileName="${LOG_DIR}/${RESOLVED_HOST_IP}_accesslog"
+                     filePattern="${LOG_DIR}/${RESOLVED_HOST_IP}_accesslog.%d{yyyy-MM-dd-HH}">
+            <PatternLayout pattern="${APP_PATTERN}" charset="UTF-8"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+            <DefaultRolloverStrategy max="336"/>
+        </RollingFile>
+
+        <RollingFile name="DBIO_FILE"
+                     fileName="${LOG_DIR}/${RESOLVED_HOST_IP}_dbiolog"
+                     filePattern="${LOG_DIR}/${RESOLVED_HOST_IP}_dbiolog.%d{yyyy-MM-dd-HH}">
+            <PatternLayout pattern="${APP_PATTERN}" charset="UTF-8"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+            <DefaultRolloverStrategy max="336"/>
+        </RollingFile>
+
+        <RollingFile name="DBIO_DAO_FILE"
+                     fileName="${LOG_DIR}/${RESOLVED_HOST_IP}_dbiolog_dao"
+                     filePattern="${LOG_DIR}/${RESOLVED_HOST_IP}_dbiolog_dao.%d{yyyy-MM-dd-HH}">
+            <PatternLayout pattern="${APP_PATTERN}" charset="UTF-8"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+            <DefaultRolloverStrategy max="336"/>
+        </RollingFile>
+
+        <RollingFile name="INPUTMSG_FILE"
+                     fileName="${LOG_DIR}/${RESOLVED_HOST_IP}_inputmsglog"
+                     filePattern="${LOG_DIR}/${RESOLVED_HOST_IP}_inputmsglog.%d{yyyy-MM-dd-HH}">
+            <PatternLayout pattern="${APP_PATTERN}" charset="UTF-8"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+            <DefaultRolloverStrategy max="336"/>
+        </RollingFile>
+
+        <RollingFile name="OUTPUTMSG_FILE"
+                     fileName="${LOG_DIR}/${RESOLVED_HOST_IP}_outputmsglog"
+                     filePattern="${LOG_DIR}/${RESOLVED_HOST_IP}_outputmsglog.%d{yyyy-MM-dd-HH}">
+            <PatternLayout pattern="${APP_PATTERN}" charset="UTF-8"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+            <DefaultRolloverStrategy max="336"/>
+        </RollingFile>
+
+        <RollingFile name="ASYNCDRIVER_FILE"
+                     fileName="${LOG_DIR}/${RESOLVED_HOST_IP}_asyncdriver.log"
+                     filePattern="${LOG_DIR}/${RESOLVED_HOST_IP}_asyncdriver.log.%d{yyyy-MM-dd-HH}">
+            <PatternLayout pattern="${APP_PATTERN}" charset="UTF-8"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+            <DefaultRolloverStrategy max="336"/>
+        </RollingFile>
+
+        <RollingFile name="AUTH_FILE"
+                     fileName="${LOG_DIR}/${RESOLVED_HOST_IP}_authlog"
+                     filePattern="${LOG_DIR}/${RESOLVED_HOST_IP}_authlog.%d{yyyy-MM-dd-HH}">
+            <PatternLayout pattern="${APP_PATTERN}" charset="UTF-8"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+            <DefaultRolloverStrategy max="336"/>
+        </RollingFile>
+
+        <RollingFile name="CONNECTIN_FILE"
+                     fileName="${LOG_DIR}/${RESOLVED_HOST_IP}_connectinlog"
+                     filePattern="${LOG_DIR}/${RESOLVED_HOST_IP}_connectinlog.%d{yyyy-MM-dd-HH}">
+            <PatternLayout pattern="${APP_PATTERN}" charset="UTF-8"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+            <DefaultRolloverStrategy max="336"/>
+        </RollingFile>
+
+        <RollingFile name="CONNECTOUT_FILE"
+                     fileName="${LOG_DIR}/${RESOLVED_HOST_IP}_connectoutlog"
+                     filePattern="${LOG_DIR}/${RESOLVED_HOST_IP}_connectoutlog.%d{yyyy-MM-dd-HH}">
+            <PatternLayout pattern="${APP_PATTERN}" charset="UTF-8"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+            <DefaultRolloverStrategy max="336"/>
+        </RollingFile>
+
+        <RollingFile name="MRD_FILE"
+                     fileName="${LOG_DIR}/${RESOLVED_HOST_IP}_mrdlog"
+                     filePattern="${LOG_DIR}/${RESOLVED_HOST_IP}_mrdlog.%d{yyyy-MM-dd-HH}">
+            <PatternLayout pattern="${APP_PATTERN}" charset="UTF-8"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+            <DefaultRolloverStrategy max="336"/>
+        </RollingFile>
+
+        <RollingFile name="ASYNCDRIVER_ERR_FILE"
+                     fileName="${LOG_DIR}/${RESOLVED_HOST_IP}_asyncdriver_${RESOLVED_ASYNCDRIVER_ERR_FILE_ID}.err"
+                     filePattern="${LOG_DIR}/${RESOLVED_HOST_IP}_asyncdriver_${RESOLVED_ASYNCDRIVER_ERR_FILE_ID}.err.%d{yyyy-MM-dd-HH}">
+            <PatternLayout pattern="${APP_PATTERN}" charset="UTF-8"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+            <DefaultRolloverStrategy max="336"/>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <!-- アプリ本体: 各 REST API 機能および HealthCheckController -->
+        <Logger name="com.example.dhapp" level="DEBUG" additivity="true">
+            <AppenderRef ref="APP_FILE"/>
+            <AppenderRef ref="TRACE_FILE"/>
+            <AppenderRef ref="KEAX_FILE"/>
+            <AppenderRef ref="KEAX0010_FILE"/>
+            <AppenderRef ref="ERR_FILE"/>
+            <AppenderRef ref="ACCESS_FILE"/>
+            <AppenderRef ref="DBIO_FILE"/>
+            <AppenderRef ref="DBIO_DAO_FILE"/>
+            <AppenderRef ref="INPUTMSG_FILE"/>
+            <AppenderRef ref="OUTPUTMSG_FILE"/>
+            <AppenderRef ref="ASYNCDRIVER_FILE"/>
+            <AppenderRef ref="AUTH_FILE"/>
+            <AppenderRef ref="CONNECTIN_FILE"/>
+            <AppenderRef ref="CONNECTOUT_FILE"/>
+            <AppenderRef ref="MRD_FILE"/>
+            <AppenderRef ref="ASYNCDRIVER_ERR_FILE"/>
+        </Logger>
+
+        <Logger name="org.springframework.transaction" level="INFO"/>
+        <Logger name="org.springframework.jdbc.core" level="INFO"/>
+
+        <!-- ルート: コンソール・エラーログ (ERROR のみ) -->
+        <Root level="INFO">
+            <AppenderRef ref="CONSOLE"/>
+            <AppenderRef ref="ERROR_FILE"/>
+        </Root>
+    </Loggers>
+</Configuration>

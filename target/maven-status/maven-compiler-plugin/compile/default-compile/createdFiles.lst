@@ -1,5 +1,6 @@
 com\example\dhapp\service\ExternalApiClient.class
 com\example\dhapp\dto\TrustStoreCallResult.class
+com\example\dhapp\logging\HostAddressResolver.class
 com\example\dhapp\service\RedirectCheckService$1.class
 com\example\dhapp\service\TrustStoreInspector.class
 com\example\dhapp\config\RedirectConfig.class
@@ -51,6 +52,7 @@ com\example\dhapp\logging\HostIpPropertyDefiner.class
 com\example\dhapp\service\ExternalGetApiClient.class
 com\example\dhapp\config\DataSourceConfig.class
 com\example\dhapp\dto\TlsCallRequest.class
+com\example\dhapp\logging\RandomStringLookup.class
 com\example\dhapp\service\ConsoleWriter.class
 com\example\dhapp\service\RedirectCheckService.class
 com\example\dhapp\service\SecureApiTlsService.class
@@ -63,17 +65,21 @@ com\example\dhapp\service\ElytronSslInspector.class
 com\example\dhapp\dto\DeploymentOverlayInfo.class
 com\example\dhapp\controller\ExternalApiController.class
 com\example\dhapp\service\DateConfigService$Snapshot.class
+com\example\dhapp\logging\HostIpLookup.class
 com\example\dhapp\dto\SecureApiCallResponse.class
 com\example\dhapp\dto\DateConfigResponse.class
 com\example\dhapp\dto\DemoRequest.class
 com\example\dhapp\dto\ErrorResponse.class
+META-INF\org\apache\logging\log4j\core\config\plugins\Log4j2Plugins.dat
 com\example\dhapp\service\DeploymentOverlayInspector.class
 com\example\dhapp\dto\UploadErrorResponse.class
+com\example\dhapp\controller\HealthCheckController.class
 com\example\dhapp\dto\ExternalGetApiResponse.class
 com\example\dhapp\controller\CacheController.class
 com\example\dhapp\DhApplication.class
 com\example\dhapp\controller\SecureApiController.class
 com\example\dhapp\service\FileUploadService.class
+META-INF\native-image\log4j-generated\df1ce154\reflect-config.json
 com\example\dhapp\exception\GlobalExceptionHandler.class
 com\example\dhapp\service\FileUploadService$ResolvedTempDir.class
 com\example\dhapp\service\SqsSendService$ClientHolder.class
